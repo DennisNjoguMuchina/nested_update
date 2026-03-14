@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nestead Properties AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #07090f;
+      --surf: #0e1220;
+      --surf2: #141a2c;
+      --surf3: #1c2438;
+      --border: rgba(255, 255, 255, 0.07);
+      --borderhi: rgba(196, 158, 76, 0.32);
+      --gold: #c49e4c;
+      --goldDim: rgba(196, 158, 76, 0.12);
+      --text: #e8edf5;
+      --muted: #8494a8;
+      --dim: #3d4f66;
+      --r: 12px;
+      --rLg: 18px;
+      --rXl: 24px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden
+    }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.6
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 15% 15%, rgba(196, 158, 76, 0.04), transparent 55%), radial-gradient(circle at 85% 85%, rgba(196, 158, 76, 0.03), transparent 50%);
+      pointer-events: none;
+      z-index: 0
+    }
+
+    header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 9, 15, 0.97);
+      backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 20;
+      gap: 12px
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0
+    }
+
+    .logo-img {
+      height: 42px;
+      width: auto;
+      object-fit: contain
+    }
+
+    .hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--goldDim);
+      border: 1px solid var(--borderhi);
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 500;
+      white-space: nowrap
+    }
+
+    .live-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.75)
+      }
+    }
+
+    .btn-dl {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: "DM Sans", sans-serif;
+      white-space: nowrap
+    }
+
+    .btn-dl:hover {
+      border-color: var(--borderhi);
+      color: var(--gold);
+      background: var(--goldDim)
+    }
+
+    .outer {
+      flex: 1;
+      display: flex;
+      overflow: hidden
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 20px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth
+    }
+
+    #chat::-webkit-scrollbar {
+      width: 3px
+    }
+
+    #chat::-webkit-scrollbar-thumb {
+      background: var(--surf3);
+      border-radius: 3px
+    }
+
+    #welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 16px;
+      text-align: center;
+      animation: fadeUp .5s ease both
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .w-logo {
+      height: 72px;
+      object-fit: contain;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 14px rgba(196, 158, 76, .18))
+    }
+
+    .w-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(18px, 4vw, 26px);
+      font-weight: 700;
+      letter-spacing: -.3px;
+      margin-bottom: 6px
+    }
+
+    .w-title span {
+      color: var(--gold)
+    }
+
+    .w-sub {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 360px;
+      line-height: 1.65;
+      margin-bottom: 24px
+    }
+
+    .try-lbl {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px
+    }
+
+    .chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 500px
+    }
+
+    .chip {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 11px 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: all .2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px
+    }
+
+    .chip:hover {
+      background: var(--surf3);
+      border-color: var(--borderhi);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(196, 158, 76, .08)
+    }
+
+    .chip-icon {
+      width: 27px;
+      height: 27px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0
+    }
+
+    .ic-gold {
+      background: rgba(196, 158, 76, .15)
+    }
+
+    .ic-blue {
+      background: rgba(96, 165, 250, .13)
+    }
+
+    .ic-green {
+      background: rgba(52, 211, 153, .12)
+    }
+
+    .ic-purple {
+      background: rgba(167, 139, 250, .13)
+    }
+
+    .chip-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.3
+    }
+
+    .chip-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .msg {
+      display: flex;
+      gap: 8px;
+      animation: fadeUp .25s ease both
+    }
+
+    .msg.user {
+      flex-direction: row-reverse
+    }
+
+    .av {
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 2px
+    }
+
+    .msg.assistant .av {
+      background: linear-gradient(135deg, var(--gold), #a07c30);
+      color: #150f00;
+      font-family: "Playfair Display", serif;
+      font-size: 13px
+    }
+
+    .msg.user .av {
+      background: var(--surf3);
+      color: var(--muted)
+    }
+
+    .bubble {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: var(--r);
+      font-size: 13.5px;
+      line-height: 1.65;
+      max-width: min(74%, 560px)
+    }
+
+    .msg.assistant .bubble {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 4px var(--r) var(--r) var(--r)
+    }
+
+    .msg.user .bubble {
+      background: linear-gradient(135deg, var(--gold), #a07c30);
+      color: #150f00;
+      font-weight: 500;
+      border-radius: var(--r) 4px var(--r) var(--r);
+      float: right
+    }
+
+    .typing-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 2px 0
+    }
+
+    .dots {
+      display: flex;
+      gap: 4px
+    }
+
+    .dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: bounce 1.1s infinite
+    }
+
+    .dots span:nth-child(2) {
+      animation-delay: .18s
+    }
+
+    .dots span:nth-child(3) {
+      animation-delay: .36s
+    }
+
+    @keyframes bounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+        opacity: .4
+      }
+
+      30% {
+        transform: translateY(-6px);
+        opacity: 1
+      }
+    }
+
+    .typing-lbl {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic
+    }
+
+    .results-section {
+      width: 100%;
+      animation: fadeUp .35s ease both
+    }
+
+    .results-hdr {
+      display: flex;
+      align-items: center;
+      margin-bottom: 11px;
+      padding: 0 2px
+    }
+
+    .results-count {
+      font-family: "Playfair Display", serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold)
+    }
+
+    .results-count span {
+      color: var(--muted);
+      font-family: "DM Sans", sans-serif;
+      font-weight: 400;
+      font-size: 12.5px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 11px
+    }
+
+    .pc {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--rLg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .22s
+    }
+
+    .pc:hover {
+      border-color: var(--borderhi);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(196, 158, 76, .1)
+    }
+
+    .pc-img {
+      position: relative;
+      height: 145px;
+      background: var(--surf3);
+      overflow: hidden
+    }
+
+    .pc-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .4s
+    }
+
+    .pc:hover .pc-img img {
+      transform: scale(1.06)
+    }
+
+    .pc-ph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: linear-gradient(135deg, var(--surf3), var(--surf2));
+      color: var(--dim)
+    }
+
+    .pc-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(7, 9, 15, .82);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .pc-avail {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      border: 2px solid rgba(7, 9, 15, .7)
+    }
+
+    .pc-body {
+      padding: 11px 12px 7px
+    }
+
+    .pc-price {
+      font-family: "Playfair Display", serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.3px;
+      line-height: 1.2
+    }
+
+    .pc-price sup {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: "DM Sans", sans-serif;
+      font-weight: 400
+    }
+
+    .pc-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 4px 0 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .pc-loc {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px
+    }
+
+    .pc-stats {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 7px
+    }
+
+    .pc-stat {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .pc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px
+    }
+
+    .pc-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--surf3);
+      color: var(--muted);
+      border: 1px solid var(--border)
+    }
+
+    .pc-tag.hi {
+      background: var(--goldDim);
+      color: var(--gold);
+      border-color: rgba(196, 158, 76, .22)
+    }
+
+    .pc-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px 10px;
+      border-top: 1px solid var(--border);
+      margin-top: 5px
+    }
+
+    .pc-agent {
+      font-size: 10.5px;
+      color: var(--dim)
+    }
+
+    .pc-wa {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #25d366;
+      background: rgba(37, 211, 102, 0.1);
+      border: 1px solid rgba(37, 211, 102, 0.25);
+      border-radius: 7px;
+      padding: 4px 9px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s
+    }
+
+    .pc-wa:hover {
+      background: rgba(37, 211, 102, 0.2)
+    }
+
+    .input-outer {
+      flex-shrink: 0;
+      background: rgba(7, 9, 15, .97);
+      border-top: 1px solid var(--border);
+      z-index: 10
+    }
+
+    .input-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 11px 20px 17px
+    }
+
+    .ibox {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 8px 8px 8px 15px;
+      transition: border-color .2s
+    }
+
+    .ibox:focus-within {
+      border-color: var(--borderhi);
+      box-shadow: 0 0 0 3px rgba(196, 158, 76, .05)
+    }
+
+    #inp {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 13.5px;
+      line-height: 1.5;
+      resize: none;
+      min-height: 22px;
+      max-height: 110px;
+      overflow-y: auto
+    }
+
+    #inp::placeholder {
+      color: var(--dim)
+    }
+
+    #inp::-webkit-scrollbar {
+      width: 2px
+    }
+
+    .send {
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), #a07c30);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .2s;
+      color: #150f00
+    }
+
+    .send:hover {
+      transform: scale(1.06);
+      box-shadow: 0 4px 14px rgba(196, 158, 76, .35)
+    }
+
+    .send:active {
+      transform: scale(.96)
+    }
+
+    .send:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none
+    }
+
+    .hint {
+      font-size: 10px;
+      color: var(--dim);
+      text-align: center;
+      margin-top: 6px
+    }
+
+    .mo {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 9, 15, .88);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s
+    }
+
+    .mo.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .modal {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: var(--rXl);
+      max-width: 500px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      transform: translateY(14px) scale(.98);
+      transition: transform .25s
+    }
+
+    .mo.open .modal {
+      transform: translateY(0) scale(1)
+    }
+
+    .modal::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .modal::-webkit-scrollbar-thumb {
+      background: var(--surf3);
+      border-radius: 3px
+    }
+
+    .modal-img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      border-radius: var(--rXl) var(--rXl) 0 0
+    }
+
+    .modal-ph {
+      height: 130px;
+      background: linear-gradient(135deg, var(--surf3), var(--surf2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      border-radius: var(--rXl) var(--rXl) 0 0
+    }
+
+    .mbody {
+      padding: 18px
+    }
+
+    .m-price {
+      font-family: "Playfair Display", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.4px
+    }
+
+    .m-price small {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      font-family: "DM Sans", sans-serif
+    }
+
+    .m-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      margin: 5px 0 3px
+    }
+
+    .m-loc {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px
+    }
+
+    .mgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 14px
+    }
+
+    .ms {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 11px
+    }
+
+    .ms-lbl {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 3px
+    }
+
+    .ms-val {
+      font-size: 12.5px;
+      font-weight: 600
+    }
+
+    .m-sec {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 7px
+    }
+
+    .m-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 14px
+    }
+
+    .m-tag {
+      font-size: 11.5px;
+      padding: 4px 9px;
+      border-radius: 7px;
+      background: var(--surf3);
+      border: 1px solid var(--border);
+      color: var(--text)
+    }
+
+    .m-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 16px
+    }
+
+    .m-cta {
+      display: flex;
+      gap: 8px
+    }
+
+    .btn-wa {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      background: #25d366;
+      color: #fff;
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px
+    }
+
+    .btn-wa:hover {
+      background: #1ebe5d;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, .35)
+    }
+
+    .btn-sec {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surf2);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .btn-sec:hover {
+      border-color: var(--borderhi);
+      background: var(--surf3)
+    }
+
+    @media(max-width:900px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:560px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .chips {
+        grid-template-columns: 1fr
+      }
+
+      header {
+        padding: 8px 14px
+      }
+
+      .live-pill {
+        display: none
+      }
+
+      .btn-dl .dl-label {
+        display: none
+      }
+
+      .btn-dl {
+        padding: 6px 8px
+      }
+
+      .input-inner {
+        padding: 9px 14px 15px
+      }
+
+      #chat {
+        padding: 14px 14px 8px
+      }
+
+      .bubble {
+        max-width: 88%
+      }
+
+      .mgrid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .scroll-end {
+      height: 1px
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo-wrap">
+      <img class="logo-img" src="nested_logo.jpg" alt="Nestead Properties">
+    </div>
+    <div class="hdr-right">
+      <div class="live-pill">AI Search Active</div>
+      <button class="btn-dl" onclick="downloadChat()" title="Download conversation">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <span class="dl-label">Download</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="outer">
+    <main>
+      <div id="chat">
+        <div id="welcome">
+          <img class="w-logo" src="nested_logo.jpg" alt="Nestead Properties">
+          <h1 class="w-title">Find Your Home in <span>Nairobi</span></h1>
+          <p class="w-sub">Search verified rentals, compare neighbourhoods, and get smart property insights — all in one
+            conversation.</p>
+          <div class="try-lbl">Try asking...</div>
+          <div class="chips">
+            <div class="chip" onclick="sendSugg('1-bed in Kileleshwa with parking and security')">
+              <div class="chip-icon ic-gold">🏢</div>
+              <div>
+                <div class="chip-title">1-bed in Kileleshwa</div>
+                <div class="chip-sub">with parking &amp; security</div>
+              </div>
+            </div>
+            <div class="chip" onclick="sendSugg('Best value apartments in Kasarani')">
+              <div class="chip-icon ic-blue">⚡</div>
+              <div>
+                <div class="chip-title">Best value for money</div>
+                <div class="chip-sub">in Kasarani</div>
+              </div>
+            </div>
+            <div class="chip" onclick="sendSugg('Luxury apartments in Westlands')">
+              <div class="chip-icon ic-purple">💎</div>
+              <div>
+                <div class="chip-title">Luxury apartments</div>
+                <div class="chip-sub">in Westlands</div>
+              </div>
+            </div>
+            <div class="chip" onclick="sendSugg('Furnished studio under KES 25000')">
+              <div class="chip-icon ic-green">🛋️</div>
+              <div>
+                <div class="chip-title">Furnished studios</div>
+                <div class="chip-sub">under KES 25K/mo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-end" id="bottom"></div>
+      </div>
+
+      <div class="input-outer">
+        <div class="input-inner">
+          <div class="ibox">
+            <textarea id="inp" rows="1" placeholder="Ask anything — 'quiet 2-bed near Westlands under 60k'..."
+              onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+            <button class="send" id="sendBtn" onclick="send()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            </button>
+          </div>
+          <div class="hint">Powered by Nestead AI &middot; Verified Nairobi listings</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="mo" id="mo" onclick="closeMoOverlay(event)">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <script>
+    const WEBHOOK = "https://unwinking-cristy-nonresponsibly.ngrok-free.dev/webhook/535dfea7-e948-4f67-8240-03d0138fc304/chat";
+    let sessionId = "s_" + Date.now();
+    let busy = false;
+    let welcomeShown = true;
+    let chatLog = [];
+
+    function fmt(p, c) { return p ? (c || "KES") + " " + Number(p).toLocaleString() : "POA"; }
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
+    function beds(n) { return parseInt(n) === 0 || n === "0" ? "Studio" : n + " Bed" + (parseInt(n) !== 1 ? "s" : ""); }
+    function esc(s) { const d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+
+    function splitList(str) { return (str || "").split(/[,;]/).map(a => a.trim()).filter(Boolean); }
+    function amenities(p) { return splitList(p.amenities); }
+    function security(p) { return splitList(p.security_features); }
+
+    function waLink(contact) {
+      const num = String(contact || "").replace(/^0/, "").replace(/\D/g, "");
+      return "https://wa.me/254" + num;
+    }
+
+    function getImg(p) {
+      const g = p.image_gallery_urls || "";
+      if (g) { const f = g.split(",")[0].trim(); if (f.startsWith("http") && !f.includes("unsplash.com/photos/")) return f; }
+      const pr = p.primary_image_url || "";
+      if (pr && pr.startsWith("http") && !pr.includes("unsplash.com/photos/")) return pr;
+      return null;
+    }
+
+    function scrollDown() { document.getElementById("chat").scrollTop = 999999; }
+
+    function hideWelcome() {
+      if (!welcomeShown) return;
+      welcomeShown = false;
+      const w = document.getElementById("welcome");
+      if (w) w.style.display = "none";
+    }
+
+    function resize(el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 110) + "px";
+    }
+
+    function onKey(e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    }
+
+    function addUser(text) {
+      hideWelcome();
+      chatLog.push({ role: "user", text });
+      const chat = document.getElementById("chat");
+      const anchor = document.getElementById("bottom");
+      const el = document.createElement("div");
+      el.className = "msg user";
+      el.innerHTML = `<div class="av">You</div><div><div class="bubble">${esc(text)}</div></div>`;
+      chat.insertBefore(el, anchor);
+      scrollDown();
+    }
+
+    function addTyping() {
+      const chat = document.getElementById("chat");
+      const anchor = document.getElementById("bottom");
+      const el = document.createElement("div");
+      el.className = "msg assistant";
+      el.id = "typing";
+      el.innerHTML = `<div class="av">N</div><div class="typing-row"><div class="dots"><span></span><span></span><span></span></div><div class="typing-lbl">Searching listings&hellip;</div></div>`;
+      chat.insertBefore(el, anchor);
+      scrollDown();
+    }
+
+    function removeTyping() { const e = document.getElementById("typing"); if (e) e.remove(); }
+
+    function addText(text) {
+      chatLog.push({ role: "assistant", text });
+      const chat = document.getElementById("chat");
+      const anchor = document.getElementById("bottom");
+      const el = document.createElement("div");
+      el.className = "msg assistant";
+      el.innerHTML = `<div class="av">N</div><div><div class="bubble">${esc(text)}</div></div>`;
+      chat.insertBefore(el, anchor);
+      scrollDown();
+    }
+
+    function addProperties(props) {
+      chatLog.push({ role: "properties", count: props.length });
+      const chat = document.getElementById("chat");
+      const anchor = document.getElementById("bottom");
+      const sec = document.createElement("div");
+      sec.className = "results-section";
+      sec.innerHTML = `<div class="results-hdr"><div class="results-count">${props.length} listings found <span>matching your search</span></div></div>`;
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      props.forEach((p, i) => { grid.appendChild(buildCard(p, i)); });
+      sec.appendChild(grid);
+      chat.insertBefore(sec, anchor);
+      scrollDown();
+    }
+
+    const WA_SVG = "<svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\">"
+      + "<path d=\"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z\"/>"
+      + "<path d=\"M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.523 5.845L.057 23.571a.5.5 0 00.612.612l5.726-1.466A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.927 0-3.736-.511-5.295-1.402l-.38-.225-3.898.998.998-3.898-.225-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z\"/>"
+      + "</svg>";
+
+    // Modal WA icon (kept separate as it was originally)
+    const WA_ICON = WA_SVG;
+
+    function buildCard(p, i) {
+      const card = document.createElement("div");
+      card.className = "pc";
+      card.style.animationDelay = (i * 0.05) + "s";
+      card.onclick = () => openModal(p);
+
+      const img = getImg(p);
+      const parking = parseInt(p.parking_spaces || 0) > 0;
+      const furnished = (p.furnished || "").toLowerCase() === "yes";
+      const tags = amenities(p).slice(0, 3);
+      const contact = String(p.agent_contact || "").trim();
+      const num = contact.replace(/^0/, "").replace(/\D/g, "");
+      const waUrl = "https://wa.me/254" + num;
+
+      // Build image section
+      let imgHtml = "";
+      if (img) {
+        imgHtml = "<img src=\"" + img + "\" alt=\"" + esc(p.title) + "\" loading=\"lazy\" onerror=\"this.parentNode.innerHTML='<div class=pc-ph>&#127970;</div>'\"/>";
+      } else {
+        imgHtml = "<div class=\"pc-ph\">🏢</div>";
+      }
+
+      // Build tags
+      let tagsHtml = "";
+      if (parking) tagsHtml += "<span class=\"pc-tag hi\">🚗 Parking</span>";
+      if (furnished) tagsHtml += "<span class=\"pc-tag hi\">🛋️ Furnished</span>";
+      tags.forEach(function (t) { tagsHtml += "<span class=\"pc-tag\">" + esc(cap(t)) + "</span>"; });
+
+      // Build sqft
+      let sqftHtml = p.square_feet ? "<div class=\"pc-stat\">" + p.square_feet + " sqft</div>" : "";
+
+      // Build card HTML — footer has agent name only; WA button appended separately below
+      card.innerHTML =
+        "<div class=\"pc-img\">" + imgHtml + "<div class=\"pc-badge\">" + esc(p.property_type || "Apartment") + "</div><div class=\"pc-avail\"></div></div>"
+        + "<div class=\"pc-body\">"
+        + "<div class=\"pc-price\">" + fmt(p.price_monthly, p.currency) + " <sup>/mo</sup></div>"
+        + "<div class=\"pc-title\">" + esc(p.title || "Property") + "</div>"
+        + "<div class=\"pc-loc\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>" + esc(p.neighborhood || p.area || "") + "</div>"
+        + "<div class=\"pc-stats\">"
+        + "<div class=\"pc-stat\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z\"/></svg>" + beds(p.bedrooms) + "</div>"
+        + "<div class=\"pc-stat\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/></svg>" + (p.bathrooms || "—") + " Bath</div>"
+        + sqftHtml
+        + "</div>"
+        + "<div class=\"pc-tags\">" + tagsHtml + "</div>"
+        + "</div>"
+        + "<div class=\"pc-foot\"><div class=\"pc-agent\">" + esc(p.agent_name || "Agent") + "</div></div>";
+
+      // Append WhatsApp button via createElement — avoids all nested quote/attribute issues
+      if (contact && num) {
+        const foot = card.querySelector(".pc-foot");
+        const wa = document.createElement("a");
+        wa.className = "pc-wa";
+        wa.href = waUrl;
+        wa.target = "_blank";
+        wa.onclick = function (e) { e.stopPropagation(); };
+        wa.innerHTML = WA_SVG + " WhatsApp";
+        foot.appendChild(wa);
+      }
+
+      return card;
+    }
+
+    function openModal(p) {
+      const img = getImg(p);
+      const parking = parseInt(p.parking_spaces || 0);
+      const furnished = (p.furnished || "").toLowerCase() === "yes";
+      const allTags = [...amenities(p), ...security(p)].filter(Boolean);
+      const contact = p.agent_contact || "";
+      const mc = document.getElementById("modalContent");
+      mc.innerHTML = `
+    ${img ? `<img class="modal-img" src="${img}" alt="${esc(p.title)}" onerror="this.style.display='none'">` : `<div class="modal-ph">🏢</div>`}
+    <div class="mbody">
+      <div class="m-price">${fmt(p.price_monthly, p.currency)} <small>/ month</small></div>
+      <div class="m-title">${esc(p.title || "Property")}</div>
+      <div class="m-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(p.neighborhood || p.area || "")}</div>
+      <div class="mgrid">
+        <div class="ms"><div class="ms-lbl">Bedrooms</div><div class="ms-val">${beds(p.bedrooms)}</div></div>
+        <div class="ms"><div class="ms-lbl">Bathrooms</div><div class="ms-val">${p.bathrooms || "—"}</div></div>
+        <div class="ms"><div class="ms-lbl">Size</div><div class="ms-val">${p.square_feet || "—"} sqft</div></div>
+        <div class="ms"><div class="ms-lbl">Parking</div><div class="ms-val">${parking > 0 ? parking + " space(s)" : "None"}</div></div>
+        <div class="ms"><div class="ms-lbl">Furnished</div><div class="ms-val">${furnished ? "✓ Yes" : "✗ No"}</div></div>
+        <div class="ms"><div class="ms-lbl">Noise Level</div><div class="ms-val">${cap(p.noise_level) || "—"}</div></div>
+        <div class="ms"><div class="ms-lbl">Pet Friendly</div><div class="ms-val">${(p.pet_friendly || "").toLowerCase() === "yes" ? "✓ Yes" : "✗ No"}</div></div>
+        <div class="ms"><div class="ms-lbl">Transport</div><div class="ms-val">${cap(p.public_transport_access) || "—"}</div></div>
+      </div>
+      ${allTags.length ? `<div class="m-sec">Amenities &amp; Security</div><div class="m-tags">${allTags.map(t => `<span class="m-tag">${esc(cap(t))}</span>`).join("")}</div>` : ""}
+      ${p.description ? `<div class="m-sec">Description</div><div class="m-desc">${esc(p.description)}</div>` : ""}
+      <div class="m-cta">
+        ${contact ? `<a class="btn-wa" href="${waLink(contact)}" target="_blank">${WA_ICON} WhatsApp Agent</a>` : ""}
+        <button class="btn-sec" onclick="closeMo()">✕ Close</button>
+      </div>
+    </div>`;
+      document.getElementById("mo").classList.add("open");
+    }
+
+    function closeMo() { document.getElementById("mo").classList.remove("open"); }
+    function closeMoOverlay(e) { if (e.target === document.getElementById("mo")) closeMo(); }
+
+    async function send() {
+      if (busy) return;
+      const inp = document.getElementById("inp");
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = ""; inp.style.height = "auto";
+      busy = true;
+      document.getElementById("sendBtn").disabled = true;
+      addUser(text);
+      addTyping();
+      try {
+        const res = await fetch(WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatInput: text, sessionId })
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        removeTyping();
+        handleResp(data);
+      } catch (err) {
+        removeTyping();
+        addText("Sorry, I couldn't connect right now. Please check your connection and try again.");
+        console.error(err);
+      }
+      busy = false;
+      document.getElementById("sendBtn").disabled = false;
+    }
+
+    function handleResp(data) {
+      let response = "", properties = [];
+      if (Array.isArray(data) && data[0]) {
+        response = data[0].response || data[0].output || "";
+        properties = data[0].properties || [];
+      } else if (data.response !== undefined) {
+        response = data.response;
+        properties = data.properties || [];
+      } else if (data.output) {
+        try {
+          const p = JSON.parse(data.output.replace(/```json|```/g, "").trim());
+          response = p.response || ""; properties = p.properties || [];
+        } catch { response = data.output; }
+      }
+      if (properties && properties.length > 0) addProperties(properties);
+      else if (response) addText(response);
+      else addText("Let me know if you'd like to refine the search.");
+    }
+
+    function sendSugg(text) { document.getElementById("inp").value = text; send(); }
+
+    function downloadChat() {
+      if (!chatLog.length) { alert("No conversation to download yet."); return; }
+      let txt = "NESTEAD PROPERTIES — AI Conversation\n";
+      txt += "Downloaded: " + new Date().toLocaleString("en-KE") + "\n";
+      txt += "=".repeat(50) + "\n\n";
+      chatLog.forEach(m => {
+        if (m.role === "user") txt += "You:\n" + m.text + "\n\n";
+        else if (m.role === "assistant") txt += "Nestead AI:\n" + m.text + "\n\n";
+        else if (m.role === "properties") txt += "Nestead AI: [Displayed " + m.count + " property listings]\n\n";
+      });
+      const blob = new Blob([txt], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "nestead-chat-" + Date.now() + ".txt";
+      a.click();
+    }
+
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeMo(); });
+  </script>
+</body>
+ 
+</html>
