@@ -972,8 +972,80 @@
       }
     }
 
-    .scroll-end {
-      height: 1px
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        height: auto !important;
+        overflow: visible !important;
+        font-size: 14pt !important;
+      }
+      body::before { display: none !important; }
+      
+      header {
+        position: static !important;
+        background: none !important;
+        border-bottom: 2px solid var(--gold) !important;
+        padding: 10px 0 !important;
+      }
+      .live-pill, .btn-dl, .input-outer, .scroll-end, #mo, .w-logo, .try-lbl, .chips, .dots, .typing-lbl {
+        display: none !important;
+      }
+      
+      .outer, main, #chat {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+      }
+
+      /* Print-friendly Typography & Layout */
+      .w-title { color: #000 !important; font-size: 24pt !important; margin-top: 20px; }
+      .w-sub { color: #333 !important; font-size: 14pt !important; max-width: none !important; }
+
+      /* Messages */
+      .msg { margin-bottom: 20px !important; break-inside: avoid; }
+      .av { background: #eee !important; color: #333 !important; border: 1px solid #ccc !important; }
+      .msg.user .av { background: #fff8eb !important; color: #8a6c22 !important; border-color: #c49e4c !important; }
+      .bubble {
+        background: #f8f9fa !important;
+        border: 1px solid #ddd !important;
+        color: #000 !important;
+        font-size: 13pt !important;
+        max-width: 80% !important;
+      }
+      .msg.user .bubble {
+        background: #fff8eb !important;
+        border: 1px solid #c49e4c !important;
+        font-weight: normal !important;
+        color: #000 !important;
+      }
+
+      /* Property Cards Grid */
+      .grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+      }
+      .pc {
+        break-inside: avoid !important;
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        transform: none !important;
+      }
+      .pc-img { background: #eee !important; height: 160px !important; }
+      .pc-img img { object-fit: cover !important; }
+      .pc-badge { background: #000 !important; color: #fff !important; top: 10px !important; left: 10px !important; }
+      .pc-avail { display: none !important; }
+      .pc-price { color: #000 !important; font-size: 16pt !important; }
+      .pc-title { color: #111 !important; font-size: 13pt !important; white-space: normal !important; overflow: visible !important; }
+      .pc-loc, .pc-stat, .pc-agent { color: #444 !important; font-size: 11pt !important; }
+      .pc-tag { border: 1px solid #999 !important; background: transparent !important; color: #333 !important; }
+      .pc-tag.hi { border-color: #c49e4c !important; color: #c49e4c !important; font-weight: bold !important; }
+      .pc-wa { display: none !important; }
+      .results-count { color: #000 !important; font-size: 14pt !important; margin-bottom: 15px !important; }
+      
+      @page { margin: 1.5cm; }
     }
   </style>
 </head>
@@ -1070,6 +1142,21 @@
     let welcomeShown = true;
     let chatLog = [];
 
+    /* 6 high-quality Nairobi / East-African style real-estate fallback images */
+    const FALLBACK_IMAGES = [
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop&q=80",  /* modern apartment exterior */
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop&q=80",  /* stylish living room */
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop&q=80",  /* modern kitchen */
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&h=400&fit=crop&q=80",  /* cozy bedroom */
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop&q=80",  /* luxury home exterior */
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop&q=80"   /* building with pool */
+    ];
+
+    /** Return a deterministic fallback image URL based on card index */
+    function getFallbackImg(index) {
+      return FALLBACK_IMAGES[(index || 0) % FALLBACK_IMAGES.length];
+    }
+
     function fmt(p, c) { return p ? (c || "KES") + " " + Number(p).toLocaleString() : "POA"; }
     function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
     function beds(n) { return parseInt(n) === 0 || n === "0" ? "Studio" : n + " Bed" + (parseInt(n) !== 1 ? "s" : ""); }
@@ -1147,7 +1234,7 @@
     }
 
     function addProperties(props) {
-      chatLog.push({ role: "properties", count: props.length });
+      chatLog.push({ role: "properties", data: props });
       const chat = document.getElementById("chat");
       const anchor = document.getElementById("bottom");
       const sec = document.createElement("div");
@@ -1155,7 +1242,10 @@
       sec.innerHTML = `<div class="results-hdr"><div class="results-count">${props.length} listings found <span>matching your search</span></div></div>`;
       const grid = document.createElement("div");
       grid.className = "grid";
-      props.forEach((p, i) => { grid.appendChild(buildCard(p, i)); });
+      props.forEach((p, i) => {
+        _propIndexMap.set(p, i);  /* store index for modal fallback lookup */
+        grid.appendChild(buildCard(p, i));
+      });
       sec.appendChild(grid);
       chat.insertBefore(sec, anchor);
       scrollDown();
@@ -1176,6 +1266,8 @@
       card.onclick = () => openModal(p);
 
       const img = getImg(p);
+      const fallback = getFallbackImg(i);
+      const displayImg = img || fallback;
       const parking = parseInt(p.parking_spaces || 0) > 0;
       const furnished = (p.furnished || "").toLowerCase() === "yes";
       const tags = amenities(p).slice(0, 3);
@@ -1183,13 +1275,8 @@
       const num = contact.replace(/^0/, "").replace(/\D/g, "");
       const waUrl = "https://wa.me/254" + num;
 
-      // Build image section
-      let imgHtml = "";
-      if (img) {
-        imgHtml = "<img src=\"" + img + "\" alt=\"" + esc(p.title) + "\" loading=\"lazy\" onerror=\"this.parentNode.innerHTML='<div class=pc-ph>&#127970;</div>'\"/>";
-      } else {
-        imgHtml = "<div class=\"pc-ph\">🏢</div>";
-      }
+      // Build image section — always show an image (real or fallback)
+      const imgHtml = "<img src=\"" + displayImg + "\" alt=\"" + esc(p.title) + "\" loading=\"lazy\" onerror=\"this.src='" + fallback + "'\"/>";
 
       // Build tags
       let tagsHtml = "";
@@ -1231,15 +1318,21 @@
       return card;
     }
 
+    /* Track card index per property for deterministic fallback in modal */
+    let _propIndexMap = new WeakMap();
+
     function openModal(p) {
       const img = getImg(p);
+      const idx = _propIndexMap.get(p) || 0;
+      const fallback = getFallbackImg(idx);
+      const displayImg = img || fallback;
       const parking = parseInt(p.parking_spaces || 0);
       const furnished = (p.furnished || "").toLowerCase() === "yes";
       const allTags = [...amenities(p), ...security(p)].filter(Boolean);
       const contact = p.agent_contact || "";
       const mc = document.getElementById("modalContent");
       mc.innerHTML = `
-    ${img ? `<img class="modal-img" src="${img}" alt="${esc(p.title)}" onerror="this.style.display='none'">` : `<div class="modal-ph">🏢</div>`}
+    <img class="modal-img" src="${displayImg}" alt="${esc(p.title)}" onerror="this.src='${fallback}'">
     <div class="mbody">
       <div class="m-price">${fmt(p.price_monthly, p.currency)} <small>/ month</small></div>
       <div class="m-title">${esc(p.title || "Property")}</div>
@@ -1319,19 +1412,9 @@
 
     function downloadChat() {
       if (!chatLog.length) { alert("No conversation to download yet."); return; }
-      let txt = "NESTEAD PROPERTIES — AI Conversation\n";
-      txt += "Downloaded: " + new Date().toLocaleString("en-KE") + "\n";
-      txt += "=".repeat(50) + "\n\n";
-      chatLog.forEach(m => {
-        if (m.role === "user") txt += "You:\n" + m.text + "\n\n";
-        else if (m.role === "assistant") txt += "Nestead AI:\n" + m.text + "\n\n";
-        else if (m.role === "properties") txt += "Nestead AI: [Displayed " + m.count + " property listings]\n\n";
-      });
-      const blob = new Blob([txt], { type: "text/plain" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "nestead-chat-" + Date.now() + ".txt";
-      a.click();
+      // Trigger the browser's native print dialog which allows exporting as high-quality PDF
+      // The @media print CSS styling ensures all UI elements are hidden and the chat is beautifully formatted.
+      window.print();
     }
 
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeMo(); });
