@@ -77,14 +77,27 @@
     .logo-wrap {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-shrink: 0
+      justify-content: center;
+      background: #ffffff;
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(196, 158, 76, 0.3);
+      box-shadow: 0 2px 12px rgba(196, 158, 76, 0.15);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .logo-wrap:hover {
+      box-shadow: 0 4px 16px rgba(196, 158, 76, 0.25);
+      transform: translateY(-1px);
     }
 
     .logo-img {
-      height: 42px;
+      height: 28px;
       width: auto;
-      object-fit: contain
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      display: block;
     }
 
     .hdr-right {
@@ -209,11 +222,33 @@
       }
     }
 
+    .w-logo-wrap {
+      background: #ffffff;
+      padding: 18px 32px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(196, 158, 76, 0.25);
+      box-shadow: 0 8px 32px rgba(196, 158, 76, 0.12), inset 0 0 0 1px rgba(196, 158, 76, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: floatLogo 6s ease-in-out infinite;
+    }
+
+    @keyframes floatLogo {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
     .w-logo {
-      height: 72px;
+      height: 54px;
       object-fit: contain;
-      margin-bottom: 16px;
-      filter: drop-shadow(0 4px 14px rgba(196, 158, 76, .18))
+      mix-blend-mode: multiply;
+      display: block;
     }
 
     .w-title {
@@ -988,7 +1023,16 @@
         border-bottom: 2px solid var(--gold) !important;
         padding: 10px 0 !important;
       }
-      .live-pill, .btn-dl, .input-outer, .scroll-end, #mo, .w-logo, .try-lbl, .chips, .dots, .typing-lbl {
+      .logo-wrap {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+      .logo-img {
+        mix-blend-mode: normal !important;
+      }
+      .live-pill, .btn-dl, .input-outer, .scroll-end, #mo, .w-logo-wrap, .try-lbl, .chips, .dots, .typing-lbl {
         display: none !important;
       }
       
@@ -1073,7 +1117,9 @@
     <main>
       <div id="chat">
         <div id="welcome">
-          <img class="w-logo" src="nested_logo.jpg" alt="Nestead Properties">
+          <div class="w-logo-wrap">
+            <img class="w-logo" src="nested_logo.jpg" alt="Nestead Properties">
+          </div>
           <h1 class="w-title">Find Your Home in <span>Nairobi</span></h1>
           <p class="w-sub">Search verified rentals, compare neighbourhoods, and get smart property insights — all in one
             conversation.</p>
