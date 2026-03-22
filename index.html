@@ -1183,7 +1183,7 @@
 
   <script>
     const WEBHOOK = "https://unwinking-cristy-nonresponsibly.ngrok-free.dev/webhook/535dfea7-e948-4f67-8240-03d0138fc304/chat";
-    let sessionId = "s_" + Date.now();
+    let sessionId = crypto.randomUUID ? crypto.randomUUID() : "s_" + Date.now();
     let busy = false;
     let welcomeShown = true;
     let chatLog = [];
@@ -1203,9 +1203,9 @@
       return FALLBACK_IMAGES[(index || 0) % FALLBACK_IMAGES.length];
     }
 
-    function fmt(p, c) { return p ? (c || "KES") + " " + Number(p).toLocaleString() : "POA"; }
+    function fmt(p, c) { return p ? esc(c || "KES") + " " + Number(p).toLocaleString() : "POA"; }
     function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
-    function beds(n) { return parseInt(n) === 0 || n === "0" ? "Studio" : n + " Bed" + (parseInt(n) !== 1 ? "s" : ""); }
+    function beds(n) { return parseInt(n) === 0 || n === "0" ? "Studio" : esc(n) + " Bed" + (parseInt(n) !== 1 ? "s" : ""); }
     function esc(s) { const d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
 
     function splitList(str) { return (str || "").split(/[,;]/).map(a => a.trim()).filter(Boolean); }
@@ -1322,7 +1322,7 @@
       const waUrl = "https://wa.me/254" + num;
 
       // Build image section — always show an image (real or fallback)
-      const imgHtml = "<img src=\"" + displayImg + "\" alt=\"" + esc(p.title) + "\" loading=\"lazy\" onerror=\"this.src='" + fallback + "'\"/>";
+      const imgHtml = "<img src=\"" + esc(displayImg) + "\" alt=\"" + esc(p.title) + "\" loading=\"lazy\" onerror=\"this.src='" + esc(fallback) + "'\"/>";
 
       // Build tags
       let tagsHtml = "";
@@ -1331,7 +1331,7 @@
       tags.forEach(function (t) { tagsHtml += "<span class=\"pc-tag\">" + esc(cap(t)) + "</span>"; });
 
       // Build sqft
-      let sqftHtml = p.square_feet ? "<div class=\"pc-stat\">" + p.square_feet + " sqft</div>" : "";
+      let sqftHtml = p.square_feet ? "<div class=\"pc-stat\">" + esc(p.square_feet) + " sqft</div>" : "";
 
       // Build card HTML — footer has agent name only; WA button appended separately below
       card.innerHTML =
@@ -1342,7 +1342,7 @@
         + "<div class=\"pc-loc\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>" + esc(p.neighborhood || p.area || "") + "</div>"
         + "<div class=\"pc-stats\">"
         + "<div class=\"pc-stat\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z\"/></svg>" + beds(p.bedrooms) + "</div>"
-        + "<div class=\"pc-stat\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/></svg>" + (p.bathrooms || "—") + " Bath</div>"
+        + "<div class=\"pc-stat\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/></svg>" + esc(p.bathrooms || "—") + " Bath</div>"
         + sqftHtml
         + "</div>"
         + "<div class=\"pc-tags\">" + tagsHtml + "</div>"
@@ -1378,20 +1378,20 @@
       const contact = p.agent_contact || "";
       const mc = document.getElementById("modalContent");
       mc.innerHTML = `
-    <img class="modal-img" src="${displayImg}" alt="${esc(p.title)}" onerror="this.src='${fallback}'">
+    <img class="modal-img" src="${esc(displayImg)}" alt="${esc(p.title)}" onerror="this.src='${esc(fallback)}'">
     <div class="mbody">
       <div class="m-price">${fmt(p.price_monthly, p.currency)} <small>/ month</small></div>
       <div class="m-title">${esc(p.title || "Property")}</div>
       <div class="m-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(p.neighborhood || p.area || "")}</div>
       <div class="mgrid">
         <div class="ms"><div class="ms-lbl">Bedrooms</div><div class="ms-val">${beds(p.bedrooms)}</div></div>
-        <div class="ms"><div class="ms-lbl">Bathrooms</div><div class="ms-val">${p.bathrooms || "—"}</div></div>
-        <div class="ms"><div class="ms-lbl">Size</div><div class="ms-val">${p.square_feet || "—"} sqft</div></div>
+        <div class="ms"><div class="ms-lbl">Bathrooms</div><div class="ms-val">${esc(p.bathrooms || "—")}</div></div>
+        <div class="ms"><div class="ms-lbl">Size</div><div class="ms-val">${esc(p.square_feet || "—")} sqft</div></div>
         <div class="ms"><div class="ms-lbl">Parking</div><div class="ms-val">${parking > 0 ? parking + " space(s)" : "None"}</div></div>
         <div class="ms"><div class="ms-lbl">Furnished</div><div class="ms-val">${furnished ? "✓ Yes" : "✗ No"}</div></div>
-        <div class="ms"><div class="ms-lbl">Noise Level</div><div class="ms-val">${cap(p.noise_level) || "—"}</div></div>
+        <div class="ms"><div class="ms-lbl">Noise Level</div><div class="ms-val">${esc(cap(p.noise_level) || "—")}</div></div>
         <div class="ms"><div class="ms-lbl">Pet Friendly</div><div class="ms-val">${(p.pet_friendly || "").toLowerCase() === "yes" ? "✓ Yes" : "✗ No"}</div></div>
-        <div class="ms"><div class="ms-lbl">Transport</div><div class="ms-val">${cap(p.public_transport_access) || "—"}</div></div>
+        <div class="ms"><div class="ms-lbl">Transport</div><div class="ms-val">${esc(cap(p.public_transport_access) || "—")}</div></div>
       </div>
       ${allTags.length ? `<div class="m-sec">Amenities &amp; Security</div><div class="m-tags">${allTags.map(t => `<span class="m-tag">${esc(cap(t))}</span>`).join("")}</div>` : ""}
       ${p.description ? `<div class="m-sec">Description</div><div class="m-desc">${esc(p.description)}</div>` : ""}
